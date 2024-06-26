@@ -7,8 +7,8 @@ import pyvisa as visa
 import datetime
 import os
 import sys
-import shutterapi as shapi
-import picoapi as pico
+# import shutterapi as shapi
+# import picoapi as pico
 from yaml import scan
 
 """

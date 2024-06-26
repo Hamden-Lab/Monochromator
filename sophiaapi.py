@@ -89,10 +89,11 @@ def pixis_take_bias_frames(n_bias):
     while count<=n_bias: 
         count+=1
         # Remote, NC
-        pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal, True)
-        pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal2, True)
+        pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal, False)
         pixis_set_value(CameraSettings.HardwareIOOutputSignal, AddIns.OutputSignal(5))
-        pixis_set_value(CameraSettings.HardwareIOOutputSignal2, AddIns.OutputSignal(5))
+        time.sleep(1)
+        pixis_set_value(CameraSettings.ShutterTimingExposureTime, bias_exposure_time)
+
         # 2 shutter open
         # 5 Always high
         # 6 aquiring
@@ -107,26 +108,29 @@ def pixis_take_bias_frames(n_bias):
             waitUntil_ready()
             # pixis_set_value(CameraSettings.ShutterTimingExposureTime, bias_exposure_time)
             time.sleep(5)
-    pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal, False)
-    pixis_set_value(CameraSettings.HardwareIOOutputSignal, AddIns.OutputSignal(5))
+    # pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal, True)
+    # pixis_set_value(CameraSettings.HardwareIOOutputSignal, AddIns.OutputSignal(8))
 
-def pixis_take_exposure(exposuretime):
+def pixis_take_exposure(exposure_time):
     """Opens shutter, triggers LightField Aquire command, closes shutter.
         Inputs:
             :exposuretime(float): exposure time (seconds)
         Returns:
             ::Exposure time value, and completion"""  
     if (pixis_device_found()==True):
-            pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal, False)
-            pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal2, True)
+            pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal, True)
             pixis_set_value(CameraSettings.HardwareIOOutputSignal, AddIns.OutputSignal(8)) # 8 for signal during exposure
-            pixis_set_value(CameraSettings.HardwareIOOutputSignal2, AddIns.OutputSignal(5)) # 5 for closed otherwise
 
-            print(f"exposure time set to {exposuretime}")
+            pixis_set_value(CameraSettings.ShutterTimingExposureTime, exposure_time)
+            print(f"exposure time set to {exposure_time}")
             waitUntil_ready()
             experiment.Acquire()
             waitUntil_ready()
             print("Exposure complete")
+            time.sleep(5)
+    pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal, False)
+    pixis_set_value(CameraSettings.HardwareIOOutputSignal, AddIns.OutputSignal(5))
+
 
 def pixis_take_dark_frames(n_dark,exposure_time):
     """Aquire images with shutter closed.
@@ -141,17 +145,16 @@ def pixis_take_dark_frames(n_dark,exposure_time):
         count+=1
         if (pixis_device_found()==True): 
             waitUntil_ready()
-            pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal, True)
-            pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal2, True)
+            pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal, False)
             pixis_set_value(CameraSettings.HardwareIOOutputSignal, AddIns.OutputSignal(5))
-            pixis_set_value(CameraSettings.HardwareIOOutputSignal2, AddIns.OutputSignal(5))
+
             # Acquire image
             waitUntil_ready()
             experiment.Acquire()
             waitUntil_ready()
-            time.sleep(10)
-    pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal, False)
-    pixis_set_value(CameraSettings.HardwareIOOutputSignal, AddIns.OutputSignal(8))
+            time.sleep(5)
+    # pixis_set_value(CameraSettings.HardwareIOInvertOutputSignal, True)
+    # pixis_set_value(CameraSettings.HardwareIOOutputSignal, AddIns.OutputSignal(8))
 
 def waitUntil_ready(delay=5): #default value is 5 seconds
     """Delay for each command.
